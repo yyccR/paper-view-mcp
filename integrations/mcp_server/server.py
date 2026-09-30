@@ -38,7 +38,8 @@ mcp = FastMCP(
         'submit_image returns a job_id; poll get_image_job until completed or failed. '
         'For follow-up image changes, pass the previous session_id to submit_image so results stay on one canvas. '
         'Omit session_id only when the user starts a new canvas. '
-        'Use open_canvas for the editable SVG board; open board_url in a browser panel if available. '
+        'Open board_url once for the first image. Keep that panel open for follow-up jobs; the canvas refreshes automatically. '
+        'Use open_canvas only to recover a board URL, and never reopen an existing panel for the same session. '
         'Never include tokens in tool arguments or URLs.'
     ),
     host=MCP_HOST,

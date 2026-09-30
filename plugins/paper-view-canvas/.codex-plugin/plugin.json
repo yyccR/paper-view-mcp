@@ -1,6 +1,6 @@
 {
   "name": "paper-view-canvas",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "An SVG board for your agent to draw on.",
   "author": {
     "name": "Paper View"

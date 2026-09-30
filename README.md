@@ -65,4 +65,4 @@ See [the server notes](integrations/mcp_server/README.md) for deployment details
 
 ## 中文速览
 
-Codex 执行上面的两条安装命令后，在插件页面选择 **Paper View Board** 并通过 `ipaperview.com` 登录。WorkBuddy 添加远程 Streamable HTTP MCP 地址 `https://ipaperview.com/mcp`，或使用仓库内的连接器包提交其开放平台。生成完成后打开工具返回的 `board_url`，即可查看不带聊天框的紧凑 SVG 画板。
+Codex 执行上面的两条安装命令后，在插件页面选择 **Paper View Board** 并通过 `ipaperview.com` 登录。WorkBuddy 添加远程 Streamable HTTP MCP 地址 `https://ipaperview.com/mcp`，或使用仓库内的连接器包提交其开放平台。首张图片生成完成后打开工具返回的 `board_url`，即可查看不带聊天框的紧凑 SVG 画板。后续任务复用同一 `session_id`，已打开的画板会自动显示新图片，不需要重复打开。
