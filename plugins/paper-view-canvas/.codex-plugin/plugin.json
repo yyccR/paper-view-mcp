@@ -1,6 +1,6 @@
 {
   "name": "paper-view-canvas",
-  "version": "0.3.2",
+  "version": "0.4.0+codex.20260930113157",
   "description": "An SVG board for your agent to draw on.",
   "author": {
     "name": "Paper View"
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Paper View Board",
     "shortDescription": "An SVG board for your agent to draw on.",
-    "longDescription": "Generate images with your agent and refine the results on an editable SVG board.",
+    "longDescription": "Let your agent draw editable SVG diagrams layer by layer, inspect and revise them, or generate images on the same board.",
     "developerName": "Paper View",
     "category": "Productivity",
     "capabilities": [
@@ -21,7 +21,7 @@
     "logoDark": "./assets/paper-view-logo.png",
     "defaultPrompt": [
       "Show image models and Credit prices in Paper View.",
-      "Generate an image and open its SVG canvas."
+      "Draw a scientific mechanism diagram in editable SVG layers on Paper View Board."
     ]
   },
   "mcpServers": "./.mcp.json"
