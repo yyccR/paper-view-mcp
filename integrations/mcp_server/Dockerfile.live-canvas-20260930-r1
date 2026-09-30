@@ -2,3 +2,4 @@
 FROM paper-view-canvas-mcp:0.2.0
 
 COPY integrations/mcp_server/server.py /app/integrations/mcp_server/server.py
+COPY integrations/mcp_server/oauth.py /app/integrations/mcp_server/oauth.py

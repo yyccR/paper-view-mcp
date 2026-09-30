@@ -21,7 +21,7 @@ docker compose -f integrations/mcp_server/compose.prod.yml up -d --build
 
 The production plugin connects to `https://ipaperview.com/mcp`. The website
 serves `/mcp/connect`; the MCP service serves `/authorize`, `/token`, `/register`,
-`/complete`, and the OAuth discovery endpoints through the gateway. The MCP
+`/complete`, `/client-info`, and the OAuth discovery endpoints through the gateway. The MCP
 service is private on the Docker app network and has no published host port.
 
 ## Codex

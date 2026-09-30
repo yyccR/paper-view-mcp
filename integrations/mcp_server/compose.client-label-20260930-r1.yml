@@ -1,0 +1,3 @@
+services:
+  mcp:
+    image: paper-view-canvas-mcp:client-label-20260930-r1

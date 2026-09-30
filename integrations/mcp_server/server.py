@@ -91,6 +91,17 @@ async def complete_login_ticket(request: Request) -> JSONResponse:
         return JSONResponse({'error': str(exc)}, status_code=400, headers={'Cache-Control': 'no-store'})
 
 
+@mcp.custom_route('/client-info', methods=['GET'])
+async def client_info(request: Request) -> JSONResponse:
+    try:
+        flow_id = str(uuid.UUID(request.query_params.get('flow', '')))
+        client_name = await oauth_provider.get_pending_client_name(flow_id)
+        return JSONResponse({'client_name': client_name}, headers={'Cache-Control': 'no-store'})
+    except ValueError:
+        return JSONResponse({'error': 'Connection request expired or invalid'}, status_code=404,
+                            headers={'Cache-Control': 'no-store'})
+
+
 def _auth_header() -> dict[str, str]:
     token = get_access_token()
     if not token:

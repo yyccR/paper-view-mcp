@@ -41,7 +41,7 @@ class OAuthProviderTests(unittest.TestCase):
                 resource_url='https://ipaperview.com/mcp',
                 state_db=str(Path(directory) / 'oauth.sqlite3'),
             )
-            client = type('Client', (), {'client_id': 'codex-client'})()
+            client = type('Client', (), {'client_id': 'codex-client', 'client_name': 'WorkBuddy'})()
             params = AuthorizationParams(
                 state='codex-state', scopes=[], code_challenge='challenge',
                 redirect_uri='http://127.0.0.1:2345/callback',
@@ -51,6 +51,9 @@ class OAuthProviderTests(unittest.TestCase):
             authorize_url = await provider.authorize(client, params)
             self.assertEqual(urlparse(authorize_url).netloc, 'ipaperview.com')
             flow = parse_qs(urlparse(authorize_url).query)['flow'][0]
+            self.assertEqual(await provider.get_pending_client_name(flow), 'WorkBuddy')
+            with self.assertRaisesRegex(ValueError, 'expired'):
+                await provider.get_pending_client_name('00000000-0000-4000-8000-000000000000')
 
             with patch('integrations.mcp_server.oauth.httpx.AsyncClient', return_value=FakeAPIClient()):
                 callback = await provider.complete_login(flow, 'website-ticket')

@@ -27,6 +27,7 @@ from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 @dataclass
 class PendingLogin:
     client_id: str
+    client_name: str
     params: AuthorizationParams
     expires_at: float
 
@@ -76,10 +77,18 @@ class PaperViewOAuthProvider:
             self.pending = {key: value for key, value in self.pending.items() if value.expires_at > now}
             self.pending[flow_id] = PendingLogin(
                 client_id=client.client_id,
+                client_name=' '.join(str(getattr(client, 'client_name', '') or '').split())[:80],
                 params=params,
                 expires_at=now + 600,
             )
         return f'{self.website_base}/mcp/connect?{urlencode({"flow": flow_id})}'
+
+    async def get_pending_client_name(self, flow_id: str) -> str:
+        async with self.lock:
+            pending = self.pending.get(flow_id)
+            if not pending or pending.expires_at < time.time():
+                raise ValueError('This connection request expired. Start login again in your MCP client.')
+            return pending.client_name or '第三方应用'
 
     async def complete_login(self, flow_id: str, ticket: str) -> str:
         async with self.lock:
