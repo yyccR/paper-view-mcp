@@ -44,9 +44,9 @@ Follow the client's OAuth prompt to sign in. Clients without MCP OAuth cannot us
 
 1. Call `list_image_models` to inspect available models and sizes.
 2. Call `quote_image` to check the current Credit cost.
-3. Call `submit_image` with a stable `client_request_id`; reuse it when retrying the same request.
+3. Call `submit_image` with a stable `client_request_id`; reuse it when retrying the same request. For later changes to the same drawing, pass the returned `session_id`. Omit it only to start a separate canvas.
 4. Poll `get_image_job` until the job completes. `list_image_jobs` retrieves recent jobs.
-5. Open the returned `board_url`, or call `open_canvas` with the session ID.
+5. Open the returned `board_url` once, or call `open_canvas` with the session ID. The compact board checks for new results and adds them to the open canvas automatically.
 
 The board link uses `https://ipaperview.com/board?board_session=...&compact=1`. It restores the generated image on the SVG board without opening the AI chat panel. The image itself remains raster content placed on an editable SVG canvas. MCP returns the URL; the desktop client decides whether to open it in a browser tab, side panel, or external browser.
 

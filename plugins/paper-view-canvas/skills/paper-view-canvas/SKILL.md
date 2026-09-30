@@ -7,7 +7,7 @@ Use the Paper View Board MCP server for image generation and canvas links. If th
 
 1. Call `list_image_models` when the model or size is unclear.
 2. Call `quote_image` before a paid generation when the user asks about price or has not chosen a size.
-3. Call `submit_image` once with a stable `client_request_id` UUID. Reuse that ID when retrying a timed-out submission.
+3. Call `submit_image` once with a stable `client_request_id` UUID. Reuse that ID when retrying a timed-out submission. For a follow-up change, pass the prior result's `session_id` so the new image appears on the same canvas. Omit `session_id` only when the user starts a separate canvas; use `list_image_jobs` to recover it if needed.
 4. Poll `get_image_job` until the status is `completed` or `failed`. A completed result includes the image URL, artifact reference, Credit receipt, and canvas URL.
 5. Call `open_canvas` to get the compact editable board link for an existing session.
 

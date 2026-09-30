@@ -36,6 +36,8 @@ mcp = FastMCP(
     instructions=(
         'Use quote_image before submit_image when a user asks about cost. '
         'submit_image returns a job_id; poll get_image_job until completed or failed. '
+        'For follow-up image changes, pass the previous session_id to submit_image so results stay on one canvas. '
+        'Omit session_id only when the user starts a new canvas. '
         'Use open_canvas for the editable SVG board; open board_url in a browser panel if available. '
         'Never include tokens in tool arguments or URLs.'
     ),
@@ -145,7 +147,7 @@ async def submit_image(
     session_id: str = '',
     client_request_id: str = '',
 ) -> dict[str, Any]:
-    """Queue one image. Reuse client_request_id on retries to avoid duplicate charges."""
+    """Queue an image. Reuse session_id for follow-ups and client_request_id for retries."""
     result = await _api('POST', '/api/board/image-jobs/', payload={
         'prompt': prompt,
         'model': model,

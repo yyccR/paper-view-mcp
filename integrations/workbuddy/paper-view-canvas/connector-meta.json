@@ -7,7 +7,7 @@
   "description_en": "An SVG board for your agent to draw on.",
   "source": "paper-view-canvas",
   "type": "mcp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "minWorkbuddyVersion": "4.24.0",
   "examples_zh": ["查看 Nano Banana 2 生图的 Credit 价格", "生成一张科研插图并打开画布"],
   "examples_en": ["Quote a Nano Banana 2 image", "Generate a research image and open its canvas"]
