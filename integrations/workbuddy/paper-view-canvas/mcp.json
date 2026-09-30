@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "paper-view-canvas": {
+      "type": "streamableHttp",
+      "url": "https://ipaperview.com/mcp",
+      "timeout": 30000
+    }
+  }
+}

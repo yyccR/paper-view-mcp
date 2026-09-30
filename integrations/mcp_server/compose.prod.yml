@@ -1,0 +1,38 @@
+name: paper-view-canvas-mcp
+
+services:
+  mcp:
+    build:
+      context: ../..
+      dockerfile: integrations/mcp_server/Dockerfile
+    image: paper-view-canvas-mcp:0.2.0
+    container_name: paper-view-canvas-mcp
+    environment:
+      PAPER_VIEW_API_BASE_URL: https://api.ipaperview.com
+      PAPER_VIEW_PUBLIC_URL: https://ipaperview.com
+      PAPER_VIEW_MCP_HOST: 0.0.0.0
+      PAPER_VIEW_MCP_PORT: "9410"
+      PAPER_VIEW_MCP_ISSUER_URL: https://ipaperview.com
+      PAPER_VIEW_MCP_RESOURCE_URL: https://ipaperview.com/mcp
+      PAPER_VIEW_MCP_STATE_DB: /data/oauth.sqlite3
+    volumes:
+      - oauth-state:/data
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9410/.well-known/oauth-authorization-server', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 15s
+    networks: [app]
+
+volumes:
+  oauth-state:
+
+networks:
+  app:
+    external: true
+    name: paper-view-v2-pro_app

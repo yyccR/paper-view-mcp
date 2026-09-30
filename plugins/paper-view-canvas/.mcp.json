@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "paper-view-canvas": {
+      "type": "http",
+      "url": "https://ipaperview.com/mcp",
+      "auth": "oauth"
+    }
+  }
+}

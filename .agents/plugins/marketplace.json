@@ -1,0 +1,20 @@
+{
+  "name": "paper-view-mcp",
+  "interface": {
+    "displayName": "Paper View"
+  },
+  "plugins": [
+    {
+      "name": "paper-view-canvas",
+      "source": {
+        "source": "local",
+        "path": "./plugins/paper-view-canvas"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
