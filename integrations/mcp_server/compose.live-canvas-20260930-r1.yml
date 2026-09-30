@@ -1,0 +1,4 @@
+# Local 9400 override; compose.prod.yml supplies the persistent OAuth volume.
+services:
+  mcp:
+    image: paper-view-canvas-mcp:live-canvas-20260930-r1

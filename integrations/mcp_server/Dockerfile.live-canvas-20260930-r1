@@ -1,0 +1,4 @@
+# Local 9400 update: retain the deployed OAuth provider and replace tool metadata.
+FROM paper-view-canvas-mcp:0.2.0
+
+COPY integrations/mcp_server/server.py /app/integrations/mcp_server/server.py
