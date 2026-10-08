@@ -24,6 +24,8 @@ codex mcp login paper-view-board
 
 The plugin's stable technical ID remains `paper-view-canvas`; its display name is **Paper View Board**. Do not install both the plugin and the direct MCP connection unless you want duplicate tools.
 
+Authentication and consent happen on `https://ipaperview.com`. After approval, Codex may briefly open `http://127.0.0.1:<port>/callback`: this is Codex's temporary local listener receiving the authorization result, not the Paper View server. The MCP connection itself remains `https://ipaperview.com/mcp`. If the browser opens localhost before the Paper View sign-in page, or the callback fails, restart authentication in the MCP client.
+
 ## WorkBuddy
 
 The connector package is in [`integrations/workbuddy/paper-view-canvas`](integrations/workbuddy/paper-view-canvas). It uses WorkBuddy's built-in MCP OAuth flow: `mcp.json` points to the hosted HTTPS endpoint, and `connector-meta.json` intentionally has no `auth_mode` or token form. On first connection, WorkBuddy should open the Paper View login page.
@@ -48,6 +50,8 @@ The SVG tools accept inline SVG text, not local file paths: the hosted MCP serve
 
 For raster image generation:
 
+`list_image_models` reads the current model catalog from Paper View, including Nano Banana 2.1. Model availability and Credit prices are controlled by the hosted API, so a new image model does not require a plugin update.
+
 1. Call `list_image_models` to inspect available models and sizes.
 2. Call `quote_image` to check the current Credit cost.
 3. Call `submit_image` with a stable `client_request_id`; reuse it when retrying the same request. For later changes to the same drawing, pass the returned `session_id`. Omit it only to start a separate canvas.
@@ -71,4 +75,4 @@ See [the server notes](integrations/mcp_server/README.md) for deployment details
 
 ## 中文速览
 
-Codex 执行上面的两条安装命令后，在插件页面选择 **Paper View Board** 并通过 `ipaperview.com` 登录。WorkBuddy 添加远程 Streamable HTTP MCP 地址 `https://ipaperview.com/mcp`，或使用仓库内的连接器包提交其开放平台。绘制可编辑图时先调用 `start_drawing`，再用 `draw_svg_layer` 逐层提交 SVG，用 `inspect_drawing` 查看状态；修改旧图层时先用 `get_svg_layer` 读取修订号，再调用 `update_svg_layer`。打开首次返回的 `board_url` 后，后续图层会自动进入同一画板。
+Codex 执行上面的两条安装命令后，在插件页面选择 **Paper View Board** 并通过 `ipaperview.com` 登录。授权完成后短暂跳转到 `127.0.0.1` 是 Codex 接收回调的正常步骤，MCP 服务地址仍为 `https://ipaperview.com/mcp`。WorkBuddy 添加远程 Streamable HTTP MCP 地址，或使用仓库内的连接器包提交其开放平台。`list_image_models` 会实时读取模型列表，当前包含 Nano Banana 2.1。绘制可编辑图时先调用 `start_drawing`，再用 `draw_svg_layer` 逐层提交 SVG，用 `inspect_drawing` 查看状态；修改旧图层时先用 `get_svg_layer` 读取修订号，再调用 `update_svg_layer`。打开首次返回的 `board_url` 后，后续图层会自动进入同一画板。
