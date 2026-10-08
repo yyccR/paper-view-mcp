@@ -3,12 +3,12 @@
   "name_zh": "Paper View 画板",
   "name_en": "Paper View Board",
   "description": "An SVG board for your agent to draw on.",
-  "description_zh": "连接 Paper View，让智能体生成图片并在 SVG 画板中查看和编辑。",
-  "description_en": "An SVG board for your agent to draw on.",
+  "description_zh": "让智能体逐层绘制、检查和修改可编辑 SVG 图，也能生成图片。",
+  "description_en": "Draw and revise editable SVG diagrams layer by layer, or generate images.",
   "source": "paper-view-canvas",
   "type": "mcp",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "minWorkbuddyVersion": "4.24.0",
-  "examples_zh": ["查看 Nano Banana 2 生图的 Credit 价格", "生成一张科研插图并打开画布"],
-  "examples_en": ["Quote a Nano Banana 2 image", "Generate a research image and open its canvas"]
+  "examples_zh": ["逐层绘制一张细胞信号机制图", "生成一张科研插图并打开画布"],
+  "examples_en": ["Draw a cell signaling mechanism diagram layer by layer", "Generate a research image and open its canvas"]
 }

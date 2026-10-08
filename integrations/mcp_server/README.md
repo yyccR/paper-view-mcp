@@ -35,6 +35,8 @@ connection. The command line equivalent is:
 codex mcp login paper-view-canvas
 ```
 
+The website handles sign-in and consent. After approval, Codex can redirect the browser to a temporary `127.0.0.1` callback so the local client receives the authorization code. This is separate from the hosted MCP endpoint and the local development server below.
+
 The MCP tool returns a canvas URL on `https://ipaperview.com`. Codex decides
 where to open it; MCP cannot force a right sidebar.
 
