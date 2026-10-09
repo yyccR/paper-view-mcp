@@ -15,12 +15,16 @@ class ClientPackageTests(unittest.TestCase):
         marketplace = read_json(".agents/plugins/marketplace.json")
         self.assertEqual(marketplace["name"], "paper-view-mcp")
         entry = marketplace["plugins"][0]
-        self.assertEqual(entry["name"], "paper-view-canvas")
-        self.assertEqual(entry["source"]["path"], "./plugins/paper-view-canvas")
-        plugin = read_json("plugins/paper-view-canvas/.codex-plugin/plugin.json")
-        self.assertEqual(plugin["interface"]["displayName"], "Paper View Board")
-        self.assertTrue((ROOT / "plugins/paper-view-canvas" / plugin["interface"]["logo"]).is_file())
-        mcp = read_json("plugins/paper-view-canvas/.mcp.json")
+        self.assertEqual(entry["name"], "paper-view")
+        self.assertEqual(entry["source"]["path"], "./plugins/paper-view")
+        plugin = read_json("plugins/paper-view/.codex-plugin/plugin.json")
+        self.assertEqual(plugin["name"], entry["name"])
+        self.assertEqual(plugin["interface"]["displayName"], "Paper View")
+        skill = ROOT / "plugins/paper-view/skills/draw/SKILL.md"
+        self.assertTrue(skill.is_file())
+        self.assertFalse((ROOT / "plugins/paper-view/skills/paper-view-canvas/SKILL.md").exists())
+        self.assertTrue((ROOT / "plugins/paper-view" / plugin["interface"]["logo"]).is_file())
+        mcp = read_json("plugins/paper-view/.mcp.json")
         self.assertEqual(mcp["mcpServers"]["paper-view-canvas"]["url"], "https://ipaperview.com/mcp")
         self.assertEqual(mcp["mcpServers"]["paper-view-canvas"]["auth"], "oauth")
 

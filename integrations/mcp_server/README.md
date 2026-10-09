@@ -26,7 +26,7 @@ service is private on the Docker app network and has no published host port.
 
 ## Codex
 
-Install `paper-view-canvas@paper-view-mcp` from this repository's marketplace.
+Install `paper-view@paper-view-mcp` from this repository's marketplace.
 Codex should display **OAuth** and offer **Authenticate** for this MCP server.
 Select Authenticate, sign in at `https://ipaperview.com`, and confirm the
 connection. The command line equivalent is:

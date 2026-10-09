@@ -1,13 +1,13 @@
 {
-  "name": "paper-view-canvas",
-  "version": "0.4.0+codex.20260930113157",
+  "name": "paper-view",
+  "version": "0.4.3",
   "description": "An SVG board for your agent to draw on.",
   "author": {
     "name": "Paper View"
   },
   "skills": "./skills/",
   "interface": {
-    "displayName": "Paper View Board",
+    "displayName": "Paper View",
     "shortDescription": "An SVG board for your agent to draw on.",
     "longDescription": "Let your agent draw editable SVG diagrams layer by layer, inspect and revise them, or generate images on the same board.",
     "developerName": "Paper View",
