@@ -1,6 +1,6 @@
 {
   "name": "paper-view",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "An SVG board for your agent to draw on.",
   "author": {
     "name": "Paper View"
