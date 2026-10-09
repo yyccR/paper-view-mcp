@@ -1,6 +1,6 @@
 {
   "name": "paper-view",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "An SVG board for your agent to draw on.",
   "author": {
     "name": "Paper View"
@@ -11,6 +11,7 @@
     "shortDescription": "An SVG board for your agent to draw on.",
     "longDescription": "Let your agent draw editable SVG diagrams layer by layer, inspect and revise them, or generate images on the same board.",
     "developerName": "Paper View",
+    "websiteURL": "https://ipaperview.com",
     "category": "Productivity",
     "capabilities": [
       "Interactive",
