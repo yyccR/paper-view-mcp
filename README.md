@@ -9,7 +9,7 @@ The hosted MCP endpoint is **https://ipaperview.com/mcp**. Sign in through **htt
 Install a published plugin version by pinning the marketplace to its Git tag:
 
 ```bash
-codex plugin marketplace add yyccR/paper-view-mcp --ref v0.4.3
+codex plugin marketplace add yyccR/paper-view-mcp --ref v0.4.4
 codex plugin add paper-view@paper-view-mcp
 codex plugin list --marketplace paper-view-mcp --json
 ```
@@ -60,7 +60,7 @@ Follow the client's OAuth prompt to sign in. Clients without MCP OAuth cannot us
 
 For editable agent-authored diagrams, call `start_drawing` and retain its `session_id`. Send one SVG layer at a time with `draw_svg_layer`; use the same numeric `viewBox` in every layer so they align on the canvas. Each call returns an `artifact_ref` and `revision`. Call `inspect_drawing` to list layers and read the saved canvas, and `get_svg_layer` before changing a prior layer. Submit the revised complete SVG with `update_svg_layer`, passing the current `base_revision`. A stale revision is rejected. Keep the first `board_url` open while subsequent layers sync into it.
 
-The SVG tools accept inline SVG text, not local file paths: the hosted MCP server cannot read a file on the agent's computer. They allow vector shapes, paths, text, groups, gradients, and local markers. SVG scripts, stylesheets, external references, embedded images, and `foreignObject` are rejected. Each layer is limited to 512 KiB. Drawing SVG layers does not consume image-generation Credits. If a user edits an imported layer on the board, the live canvas preserves it instead of automatically replacing it with an agent revision.
+The SVG tools accept inline SVG text, not local file paths: the hosted MCP server cannot read a file on the agent's computer. They allow vector shapes, paths, text, groups, gradients, and local markers. SVG scripts, stylesheets, external references, embedded images, and `foreignObject` are rejected. Each layer is limited to 512 KiB. The bundled `draw` skill has a [tested compatibility guide](plugins/paper-view/skills/draw/references/svg-compatibility.md) for SVG/PNG/JPEG/PPTX exports and alternative drawing methods. Drawing SVG layers does not consume image-generation Credits. If a user edits an imported layer on the board, the live canvas preserves it instead of automatically replacing it with an agent revision.
 
 For raster image generation:
 
