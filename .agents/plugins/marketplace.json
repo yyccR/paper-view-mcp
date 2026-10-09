@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "paper-view-canvas",
+      "name": "paper-view",
       "source": {
         "source": "local",
-        "path": "./plugins/paper-view-canvas"
+        "path": "./plugins/paper-view"
       },
       "policy": {
         "installation": "AVAILABLE",

@@ -1,5 +1,5 @@
 ---
-name: paper-view-canvas
+name: draw
 description: Draw editable SVG diagrams in layers on Paper View Board, or generate raster images.
 ---
 
@@ -7,9 +7,9 @@ Use the Paper View Board MCP server for image generation and canvas links. If th
 
 For an agent-authored mechanism diagram or other editable vector drawing:
 
-1. Plan the major visual layers and use one consistent `viewBox` across them. Call `start_drawing` once, or reuse a known `session_id` from the same canvas.
-2. Create each layer as complete SVG text and call `draw_svg_layer` with a stable `client_request_id` UUID. Read a local `.svg` file and pass its content; a local path is not available to the remote MCP server. Submit one logical layer at a time so the open canvas can show progress.
-3. Use SVG shapes, paths, text, groups, gradients and local markers. Set attributes directly, and avoid scripts, CSS stylesheets, external references, embedded images and `foreignObject`. The service requires a numeric `viewBox` and limits each layer to 512 KiB.
+1. Plan the major visual layers and use one consistent numeric `viewBox` across them. Call `start_drawing` once, or reuse a known `session_id` from the same canvas.
+2. Create each layer as complete SVG text without an XML declaration and call `draw_svg_layer` with a stable `client_request_id` UUID. Read a local `.svg` file and pass its content; a local path is not available to the remote MCP server. Submit one logical layer at a time so the open canvas can show progress.
+3. Use SVG shapes, paths, text, groups, gradients, and local markers. Set attributes directly. Avoid `<pattern>`, scripts, CSS stylesheets, external references, embedded images, and `foreignObject`; the service limits each layer to 512 KiB. Keep elements that must stay precisely aligned in one SVG layer, because separate layer imports may be placed independently by Board.
 4. Call `inspect_drawing` after important stages. Use `get_svg_layer` to read source and revision before changing a prior layer; send the whole revised SVG to `update_svg_layer` with `base_revision` and a new stable request ID. On a revision conflict, inspect the drawing again before retrying.
 5. Open the first `board_url` once. Subsequent layers appear in that canvas automatically; keep the panel open. The user can edit the vector elements in Board. If a user has modified a layer locally, the board preserves it and reports a conflict rather than replacing it automatically.
 

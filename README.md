@@ -6,14 +6,26 @@ The hosted MCP endpoint is **https://ipaperview.com/mcp**. Sign in through **htt
 
 ## Codex
 
-Install the repository marketplace and plugin:
+Install a published plugin version by pinning the marketplace to its Git tag:
 
 ```bash
-codex plugin marketplace add yyccR/paper-view-mcp
-codex plugin add paper-view-canvas@paper-view-mcp
+codex plugin marketplace add yyccR/paper-view-mcp --ref v0.4.3
+codex plugin add paper-view@paper-view-mcp
+codex plugin list --marketplace paper-view-mcp --json
 ```
 
-In the Codex Plugins view, install **Paper View Board** and select **Authenticate** if prompted. The browser opens the Paper View website. Start a new Codex conversation after installation so its tools and skill are loaded.
+To switch to a newer release later, replace `vX.Y.Z` below with its published tag:
+
+```bash
+codex plugin remove paper-view@paper-view-mcp
+codex plugin marketplace remove paper-view-mcp
+codex plugin marketplace add yyccR/paper-view-mcp --ref vX.Y.Z
+codex plugin add paper-view@paper-view-mcp
+```
+
+If a local `paper-view-mcp` marketplace is already configured, remove that marketplace source before adding the Git source. Users of the previous plugin ID must also remove `paper-view-canvas@paper-view-mcp` before installing `paper-view@paper-view-mcp`.
+
+In the Codex Plugins view, install **Paper View** and select **Authenticate** if prompted. The browser opens the Paper View website. Start a new Codex conversation after installation so its tools and skill are loaded.
 
 For a direct MCP connection without the plugin:
 
@@ -22,7 +34,9 @@ codex mcp add paper-view-board --url https://ipaperview.com/mcp
 codex mcp login paper-view-board
 ```
 
-The plugin's stable technical ID remains `paper-view-canvas`; its display name is **Paper View Board**. Do not install both the plugin and the direct MCP connection unless you want duplicate tools.
+The plugin ID is `paper-view`; its display name is **Paper View**. Its bundled Codex skill is named `draw`, so its qualified skill name is `paper-view:draw`. The MCP server ID remains `paper-view-canvas`. Do not install both the plugin and the direct MCP connection unless you want duplicate tools.
+
+To publish a new version, update `plugins/paper-view/.codex-plugin/plugin.json` to the next `X.Y.Z`, run `python scripts/check_plugin_release.py` and the package tests, then merge the changes and create an immutable `vX.Y.Z` Git tag on that exact commit. Pushing the tag runs CI again and rejects a tag that differs from the manifest version. Never reuse or move a published tag; the tag and manifest identify the same downloadable plugin source.
 
 Authentication and consent happen on `https://ipaperview.com`. After approval, Codex may briefly open `http://127.0.0.1:<port>/callback`: this is Codex's temporary local listener receiving the authorization result, not the Paper View server. The MCP connection itself remains `https://ipaperview.com/mcp`. If the browser opens localhost before the Paper View sign-in page, or the callback fails, restart authentication in the MCP client.
 
@@ -75,4 +89,4 @@ See [the server notes](integrations/mcp_server/README.md) for deployment details
 
 ## 中文速览
 
-Codex 执行上面的两条安装命令后，在插件页面选择 **Paper View Board** 并通过 `ipaperview.com` 登录。授权完成后短暂跳转到 `127.0.0.1` 是 Codex 接收回调的正常步骤，MCP 服务地址仍为 `https://ipaperview.com/mcp`。WorkBuddy 添加远程 Streamable HTTP MCP 地址，或使用仓库内的连接器包提交其开放平台。`list_image_models` 会实时读取模型列表，当前包含 Nano Banana 2.1。绘制可编辑图时先调用 `start_drawing`，再用 `draw_svg_layer` 逐层提交 SVG，用 `inspect_drawing` 查看状态；修改旧图层时先用 `get_svg_layer` 读取修订号，再调用 `update_svg_layer`。打开首次返回的 `board_url` 后，后续图层会自动进入同一画板。
+Codex 执行上面的两条安装命令后，在插件页面选择 **Paper View** 并通过 `ipaperview.com` 登录。授权完成后短暂跳转到 `127.0.0.1` 是 Codex 接收回调的正常步骤，MCP 服务地址仍为 `https://ipaperview.com/mcp`。WorkBuddy 添加远程 Streamable HTTP MCP 地址，或使用仓库内的连接器包提交其开放平台。`list_image_models` 会实时读取模型列表，当前包含 Nano Banana 2.1。绘制可编辑图时先调用 `start_drawing`，再用 `draw_svg_layer` 逐层提交 SVG，用 `inspect_drawing` 查看状态；修改旧图层时先用 `get_svg_layer` 读取修订号，再调用 `update_svg_layer`。打开首次返回的 `board_url` 后，后续图层会自动进入同一画板。
