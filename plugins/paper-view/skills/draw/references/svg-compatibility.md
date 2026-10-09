@@ -33,6 +33,6 @@ External CSS, fonts, scripts, event handlers, and unresolved `url(#id)` referenc
 
 `marker-mid` is accepted by the MCP and appears in SVG/PNG/JPEG, but the native PowerPoint converter rejects it. Draw middle arrowheads as explicit filled `polygon` or `path` elements. A production sample with `marker-mid` failed its selected-element PPTX download; the equivalent drawing with polygon arrowheads succeeded in all four formats.
 
-`gradientTransform` is upload-allowed but the native converter reports it as not representable. Prefer an ordinary linear or radial gradient without that transform when editable PPTX matters; this particular transform was identified in converter code and has not been tested end to end here.
+`gradientTransform` is upload-allowed, but a production drawing containing a transformed linear gradient failed selected-element editable PPTX download with "当前内容无法转换为可编辑 PowerPoint。" Use an ordinary linear or radial gradient without `gradientTransform` when editable PPTX matters. A matching control with the angle set through `x1`/`y1`/`x2`/`y2` exported with native shapes and a native gradient. Verify the exported slide for the exact drawing.
 
 Use the selected SVG element's Download menu for editable PPTX. The Board menu's whole-board PPTX export places the entire canvas as one picture. For a requested editable PPTX, download it, check that it opens, and inspect its visual result; do not infer success from the presence of a PPTX option. Very large or dynamic selections can use picture mode, so report that loss of element editability.

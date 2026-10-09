@@ -9,7 +9,7 @@ The hosted MCP endpoint is **https://ipaperview.com/mcp**. Sign in through **htt
 Install a published plugin version by pinning the marketplace to its Git tag:
 
 ```bash
-codex plugin marketplace add yyccR/paper-view-mcp --ref v0.4.4
+codex plugin marketplace add yyccR/paper-view-mcp --ref v0.4.5
 codex plugin add paper-view@paper-view-mcp
 codex plugin list --marketplace paper-view-mcp --json
 ```
