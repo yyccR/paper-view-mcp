@@ -1,6 +1,6 @@
 # Paper View Board
 
-An SVG board for your agent to draw on. Agents can build editable SVG diagrams one layer at a time, inspect the canvas, and revise individual layers. Nano Banana and GPT Image generation remains available for raster content.
+An SVG board for your agent to draw on. Agents can build one editable SVG diagram progressively, inspect the canvas, and revise the same object as new sections are added. Independent figures can also share a canvas. Nano Banana and GPT Image generation remains available for raster content.
 
 The hosted MCP endpoint is **https://ipaperview.com/mcp**. Sign in through **https://ipaperview.com** when your client asks to connect. The server uses your existing Paper View Credits; no token belongs in prompts or this repository.
 
@@ -58,9 +58,17 @@ Follow the client's OAuth prompt to sign in. Clients without MCP OAuth cannot us
 
 ## Image and board workflow
 
-For editable agent-authored diagrams, call `start_drawing` and retain its `session_id`. Send one SVG layer at a time with `draw_svg_layer`; use the same numeric `viewBox` in every layer so they align on the canvas. Each call returns an `artifact_ref` and `revision`. Call `inspect_drawing` to list layers and read the saved canvas, and `get_svg_layer` before changing a prior layer. Submit the revised complete SVG with `update_svg_layer`, passing the current `base_revision`. A stale revision is rejected. Keep the first `board_url` open while subsequent layers sync into it.
+For one editable diagram that should download and edit as a whole, call `start_drawing` and retain its `session_id`. Use `draw_svg_layer` once for the first stage and retain its `artifact_ref`. Before each later stage, call `get_svg_layer` to read the latest source and revision, then call `update_svg_layer` on the same ref with that `revision` as `base_revision` and the complete cumulative SVG. Preserve earlier content, add the new section, and keep a fixed numeric `viewBox`. This updates one logical object; it replaces the whole SVG rather than appending or merging a fragment. A stale revision is rejected. Keep the first `board_url` open while revisions sync.
 
-The SVG tools accept inline SVG text, not local file paths: the hosted MCP server cannot read a file on the agent's computer. They allow vector shapes, paths, text, groups, gradients, and local markers. SVG scripts, stylesheets, external references, embedded images, and `foreignObject` are rejected. Each layer is limited to 512 KiB. The bundled `draw` skill has a [tested compatibility guide](plugins/paper-view/skills/draw/references/svg-compatibility.md) for SVG/PNG/JPEG/PPTX exports and alternative drawing methods. Drawing SVG layers does not consume image-generation Credits. If a user edits an imported layer on the board, the live canvas preserves it instead of automatically replacing it with an agent revision.
+| Stage | Tool | SVG content | Object |
+| --- | --- | --- | --- |
+| Initial layout | `draw_svg_layer` | A | Creates and returns ref R |
+| Add a section | `get_svg_layer(R)` → `update_svg_layer` | A+B | Same ref R, latest `base_revision` |
+| Add final details | `get_svg_layer(R)` → `update_svg_layer` | A+B+C | Same ref R, latest `base_revision` |
+
+Each additional `draw_svg_layer` creates an independent board object, even with the same `session_id` and `viewBox`. Use it for independent figures, explicitly requested separate layers, or size-limit splits. Shared coordinates do not combine separate objects. `inspect_drawing` should show one ref with increasing revisions for a single figure. Verify that one selection covers the final figure, its selected-object SVG download includes every section, and one click on Edit exposes all its vector elements. Exit edit mode to restore whole-object selection.
+
+The SVG tools accept inline SVG text, not local file paths: the hosted MCP server cannot read a file on the agent's computer. They allow vector shapes, paths, text, groups, gradients, and local markers. SVG scripts, stylesheets, external references, embedded images, and `foreignObject` are rejected. Each complete SVG is limited to 512 KiB and 4,000 elements at every revision. The bundled `draw` skill has a [tested compatibility guide](plugins/paper-view/skills/draw/references/svg-compatibility.md) for SVG/PNG/JPEG/PPTX exports and alternative drawing methods. Drawing SVG does not consume image-generation Credits. If a user edits an imported object on Board, the live canvas preserves it instead of automatically replacing it with an agent revision. Inspect a conflict before proceeding; `get_svg_layer` reads saved agent source and does not prove that Board-local edits were merged.
 
 For raster image generation:
 
@@ -89,4 +97,4 @@ See [the server notes](integrations/mcp_server/README.md) for deployment details
 
 ## 中文速览
 
-Codex 执行上面的两条安装命令后，在插件页面选择 **Paper View** 并通过 `ipaperview.com` 登录。授权完成后短暂跳转到 `127.0.0.1` 是 Codex 接收回调的正常步骤，MCP 服务地址仍为 `https://ipaperview.com/mcp`。WorkBuddy 添加远程 Streamable HTTP MCP 地址，或使用仓库内的连接器包提交其开放平台。`list_image_models` 会实时读取模型列表，当前包含 Nano Banana 2.1。绘制可编辑图时先调用 `start_drawing`，再用 `draw_svg_layer` 逐层提交 SVG，用 `inspect_drawing` 查看状态；修改旧图层时先用 `get_svg_layer` 读取修订号，再调用 `update_svg_layer`。打开首次返回的 `board_url` 后，后续图层会自动进入同一画板。
+Codex 执行上面的两条安装命令后，在插件页面选择 **Paper View** 并通过 `ipaperview.com` 登录。授权完成后短暂跳转到 `127.0.0.1` 是 Codex 接收回调的正常步骤，MCP 服务地址仍为 `https://ipaperview.com/mcp`。WorkBuddy 添加远程 Streamable HTTP MCP 地址，或使用仓库内的连接器包提交其开放平台。`list_image_models` 会实时读取模型列表，当前包含 Nano Banana 2.1。绘制一张完整可编辑图时，先调用 `start_drawing`，第一轮只用一次 `draw_svg_layer`，保留返回的 `artifact_ref`。后续先 `get_svg_layer` 读取最新版本，再 `update_svg_layer` 更新同一对象，提交包含前轮内容的完整累计 SVG，不能只发新增片段。`inspect_drawing` 核验同一产物的修订与画板同步。相同画板和 `viewBox` 不会自动组合多次新增的对象；独立图或明确要求分层时才新增对象。最终整图可选中、完整下载，点击一次编辑可选择各部分独立元素；手动修改或版本冲突先核查，不强制覆盖。

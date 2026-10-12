@@ -34,9 +34,16 @@ oauth_provider = PaperViewOAuthProvider(
 mcp = FastMCP(
     'Paper View Board',
     instructions=(
-        'For an agent-authored editable diagram, call start_drawing, then draw_svg_layer once per logical layer. '
-        'Use the same viewBox for every layer, inspect_drawing between batches, and use update_svg_layer with '
-        'the current revision to edit an existing layer. SVG layers contain editable vector elements. '
+        'For one editable diagram that should download and edit as a whole, call start_drawing once and '
+        'draw_svg_layer once; retain session_id and the returned artifact_ref. For later drawing stages, '
+        'read get_svg_layer and call update_svg_layer on that same artifact_ref with the latest base_revision '
+        'and the complete cumulative SVG, including earlier content. Keep a fixed viewBox and independent '
+        'vector elements inside the SVG. update_svg_layer replaces the whole SVG; it does not append or merge fragments. '
+        'Each additional draw_svg_layer creates a separate board object, even with the same session_id and viewBox. '
+        'Use additional objects only for independent figures, explicitly requested separate layers, or size-limit splits; '
+        'do not describe separate objects as one selectable, downloadable diagram. inspect_drawing checks revisions '
+        'and saved canvas synchronization. If the user edited an object on Board or a revision conflicts, inspect '
+        'before proceeding and preserve the user edits; do not force replacement. '
         'Use quote_image before submit_image when a user asks about cost. '
         'submit_image returns a job_id; poll get_image_job until completed or failed. '
         'For follow-up image changes, pass the previous session_id to submit_image so results stay on one canvas. '
@@ -204,7 +211,11 @@ async def open_canvas(session_id: str) -> dict[str, Any]:
 
 @mcp.tool(annotations=WRITE, structured_output=True)
 async def start_drawing(title: str = 'Agent drawing') -> dict[str, Any]:
-    """Create an empty editable canvas for SVG layers from this or another MCP agent."""
+    """Create an empty editable canvas; retain session_id for drawing and revisions.
+
+    For one progressively drawn figure, create one object with draw_svg_layer,
+    then update that same artifact_ref instead of adding an object per stage.
+    """
     session = await _api('POST', '/api/board/ai-sessions/', payload={
         'client_board_id': f'plugin-{uuid.uuid4().hex}',
         'title': title[:160],
@@ -223,7 +234,15 @@ async def draw_svg_layer(
     svg_text: str,
     client_request_id: str = '',
 ) -> dict[str, Any]:
-    """Add one vector layer to a canvas. Send complete SVG text with a fixed viewBox."""
+    """Create a new independent SVG object; return its artifact_ref and revision.
+
+    Use once for a figure that should download and edit as a whole. Later
+    stages of that figure use get_svg_layer and update_svg_layer on this ref.
+    Repeated creates do not combine objects, even with the same session_id
+    and viewBox. Send SVG text, not a file path, and retain client_request_id
+    for retries of this exact request. Additional creates are for independent
+    figures, requested separate layers, or size-limit splits.
+    """
     result = await _api('POST', '/api/board/agent-svg/', payload={
         'session_id': str(uuid.UUID(session_id)),
         'title': title,
@@ -242,7 +261,17 @@ async def update_svg_layer(
     svg_text: str,
     client_request_id: str = '',
 ) -> dict[str, Any]:
-    """Replace one SVG layer if its revision still matches base_revision."""
+    """Replace the complete SVG of an existing object; do not create a new one.
+
+    Read get_svg_layer first. Reuse its session_id and artifact_ref, pass its
+    latest revision as base_revision, and send the full cumulative SVG with
+    earlier content plus the new stage. This is whole-document replacement,
+    not a fragment append or automatic merge. Keep the viewBox fixed for
+    progressive drawing. Use a new client_request_id for a new revision;
+    reuse it only when retrying that exact request. A stale revision is
+    rejected. Board-local user edits can also block replacement; inspect the
+    conflict and preserve those edits rather than forcing an overwrite.
+    """
     result = await _api('POST', '/api/board/agent-svg/', payload={
         'session_id': str(uuid.UUID(session_id)),
         'artifact_ref': artifact_ref,
@@ -256,7 +285,13 @@ async def update_svg_layer(
 
 @mcp.tool(annotations=READ, structured_output=True)
 async def inspect_drawing(session_id: str, include_canvas_svg: bool = False) -> dict[str, Any]:
-    """List current layer revisions and optionally read the board's saved SVG snapshot."""
+    """List SVG objects and latest revisions, optionally including the saved canvas.
+
+    For one progressively drawn figure, expect one artifact_ref whose
+    revision increases. Multiple refs are independent objects, not combined
+    stages. Confirm the saved canvas has synchronized before claiming the
+    new content is visible; tool submission alone does not prove this.
+    """
     session_id = str(uuid.UUID(session_id))
     session = await _api('GET', f'/api/board/ai-sessions/{session_id}/')
     layers = await _api('GET', f'/api/board/ai-sessions/{session_id}/artifacts/')
@@ -277,7 +312,12 @@ async def inspect_drawing(session_id: str, include_canvas_svg: bool = False) -> 
 
 @mcp.tool(annotations=READ, structured_output=True)
 async def get_svg_layer(artifact_ref: str) -> dict[str, Any]:
-    """Read the latest source SVG for one owned layer before revising it."""
+    """Read an owned SVG object's saved source, latest revision, and session_id.
+
+    Before continuing the same figure, use these values in update_svg_layer
+    and submit the complete cumulative SVG. This saved agent source is not
+    proof that Board-local user edits have been merged into it.
+    """
     artifact = await _api('GET', f'/api/board/artifacts/{artifact_ref}/')
     if artifact.get('kind') != 'svg':
         raise ValueError('Artifact is not an SVG layer')
