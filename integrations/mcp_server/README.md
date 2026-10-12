@@ -62,6 +62,22 @@ sign in on `https://ipaperview.com`; no personal API Token is required.
 
 ## Tools
 
+`start_drawing`, `draw_svg_layer`, `get_svg_layer`, `update_svg_layer`, and
+`inspect_drawing` support editable agent-authored SVG. Create one object with
+`draw_svg_layer` for a figure that should download and edit as a whole. Read
+its latest source/revision with `get_svg_layer`, then update the same
+`artifact_ref` with a complete cumulative SVG and the current `base_revision`.
+This replaces the whole SVG; it does not append fragments. Each additional
+create is an independent object, even with a shared session and viewBox.
+
+The MCP initialization instructions and tool descriptions in `server.py`
+explain this routing to clients that do not load a bundled skill. Deploy the
+updated MCP adapter for remote clients to receive these descriptions, and
+refresh/reconnect clients that cache their tool catalog. The bundled Codex
+and WorkBuddy skills are distributed separately through their plugin or
+connector release; editing server descriptions does not update an installed
+skill package. See the root README for the plugin release process.
+
 `list_image_models`, `quote_image`, `submit_image`, `get_image_job`,
 `list_image_jobs`, and `open_canvas` are available. Reuse a stable UUID
 `client_request_id` on submit retries. A completed job includes its image,

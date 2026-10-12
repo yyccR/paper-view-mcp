@@ -10,7 +10,7 @@ The MCP attribute allowlist is: `id`, `viewBox`, `width`, `height`, `preserveAsp
 
 An end-to-end production sample with a radial gradient, polygon, positional `tspan`, and explicit polygon arrowheads downloaded as SVG, PNG, JPEG, and editable PPTX. The PPTX contained nine native shapes and a native gradient, with no picture. The earlier flow, dense-chart, gradient, and scientific-figure samples also downloaded in all four formats. This is evidence for those tested combinations, not a guarantee for arbitrary SVG.
 
-Keep each submitted layer at most 512 KiB, at most 4,000 XML elements including the root, and at most 64 levels deep. A node's text or attribute value must be at most 20,000 characters. Split a large diagram into logical layers with the same `viewBox`, then inspect alignment in Board. Keep tightly aligned details together.
+Keep each submitted SVG object at most 512 KiB, at most 4,000 XML elements including the root, and at most 64 levels deep. A node's text or attribute value must be at most 20,000 characters. For one progressively drawn diagram, create one object and update its complete cumulative SVG with a fixed `viewBox`; the limits apply to the entire cumulative document at every revision. A shared `viewBox` does not combine separately created objects. Split only when the complete document exceeds these limits or the user requests separate figures/layers, then inspect alignment and explain the separate selection/export behavior. Keep tightly aligned details together.
 
 ## Rewrite before submission
 
