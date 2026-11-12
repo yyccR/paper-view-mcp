@@ -74,11 +74,14 @@ For raster image generation:
 
 `list_image_models` reads the current model catalog from Paper View, including Nano Banana 2.1. Model availability and Credit prices are controlled by the hosted API, so a new image model does not require a plugin update.
 
-1. Call `list_image_models` to inspect available models and sizes.
-2. Call `quote_image` to check the current Credit cost.
+1. Call `list_image_models` to inspect models, sizes, reference/mask limits, and each `model_parameters_schema`.
+2. Call `quote_image` with the same native settings and image inputs intended for submission to check the Credit cost, including effective dimensions and output count.
 3. Call `submit_image` with a stable `client_request_id`; reuse it when retrying the same request. For later changes to the same drawing, pass the returned `session_id`. Omit it only to start a separate canvas.
-4. Poll `get_image_job` until the job completes. `list_image_jobs` retrieves recent jobs.
-5. Open the returned `board_url` once, or call `open_canvas` with the session ID. The compact board checks for new results and adds them to the open canvas automatically.
+4. Pass public image URLs or base64 image data URLs in `reference_images` for reference-based generation/edits, optional `mask_image` for GPT masks, and provider-native inference fields in `model_parameters`. `session_id` only groups results: previous images must be passed explicitly. Local paths and chat attachment handles are not remote image inputs.
+5. Poll `get_image_job` until the job completes. Its `images` array includes every final output; `image_url` remains the first result for compatibility. `list_image_jobs` retrieves recent jobs.
+6. Open the returned `board_url` once, or call `open_canvas` with the session ID. The compact board checks for new results and adds them to the open canvas automatically.
+
+Native parameter examples and input limits are in the [image generation reference](plugins/paper-view/skills/draw/references/image-generation.md). The matching product backend/worker must apply migration `0092_board_image_native_parameters` and the updated adapter must be deployed before these tool arguments are available. Model-specific and preview options remain subject to upstream support.
 
 The board link uses `https://ipaperview.com/board?board_session=...&compact=1`. It restores the generated image on the SVG board without opening the AI chat panel. The image itself remains raster content placed on an editable SVG canvas. MCP returns the URL; the desktop client decides whether to open it in a browser tab, side panel, or external browser.
 

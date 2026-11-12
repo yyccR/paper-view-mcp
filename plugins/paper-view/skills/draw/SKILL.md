@@ -1,6 +1,6 @@
 ---
 name: draw
-description: Draw and revise editable SVG diagrams progressively on Paper View Board, or generate raster images.
+description: Draw and revise editable SVG diagrams on Paper View Board, or generate and edit images with references and native model parameters.
 ---
 
 Use the Paper View Board MCP server for image generation and canvas links. If the MCP server needs authentication, tell the user to select Authenticate in Codex or run `codex mcp login paper-view-canvas`. The sign-in page must be on `https://ipaperview.com`. Wait for the connection to finish before calling paid tools.
@@ -17,10 +17,12 @@ Example: create stage A once → read the returned ref → update the same ref w
 
 Do not claim that a create or update is visible until the open board has synchronized or `inspect_drawing` shows the saved canvas revision. For visual review, use the board's thumbnail or inspect its saved SVG. A successful SVG upload does not prove PPTX conversion: when editable PPTX is a requested deliverable, verify the selected element's PPTX download in Board. The whole-board PPTX export is a single image. SVG layer tools do not consume image-generation Credits.
 
-1. Call `list_image_models` when the model or size is unclear.
-2. Call `quote_image` before a paid generation when the user asks about price or has not chosen a size.
-3. Call `submit_image` once with a stable `client_request_id` UUID. Reuse that ID when retrying a timed-out submission. For a follow-up change, pass the prior result's `session_id` so the new image appears on the same canvas. Omit `session_id` only when the user starts a separate canvas; use `list_image_jobs` to recover it if needed.
-4. Poll `get_image_job` until the status is `completed` or `failed`. A completed result includes the image URL, artifact reference, Credit receipt, and canvas URL.
+For model-generated images and reference-based edits, read [image inputs and native parameters](references/image-generation.md). This is a separate path from agent-authored SVG: reference images go to the image model, not into `svg_text`.
+
+1. Call `list_image_models` to inspect the selected model's current limits and `model_parameters_schema`. Use only fields exposed by the connected tool schema. If `reference_images` or `model_parameters` is absent, the hosted backend, image worker, and MCP adapter need updating; changing this skill does not update a remote service.
+2. Call `quote_image` before paid generation when the user asks about price or has not chosen a size. Pass the same model, size, quality, reference/mask inputs, and `model_parameters` intended for submission; native size/count affect the quote.
+3. Call `submit_image` with explicit `reference_images` for reference-based generation or editing, optional `mask_image` for GPT masked edits, and `model_parameters` for native inference options. A local image must be read and encoded as a base64 image data URL, or uploaded through an authorized path to obtain a public image URL; the server cannot read a local path. Call once with a stable `client_request_id` UUID. Reuse that ID when retrying a timed-out submission. For a follow-up change, pass the prior result's `session_id` so the new image appears on the same canvas. `session_id` groups results only and does not supply any previous image to the model; include the prior result image URL explicitly to edit it. Omit `session_id` only when the user starts a separate canvas; use `list_image_jobs` to recover it if needed.
+4. Poll `get_image_job` until the status is `completed` or `failed`. A completed result includes `images` for all delivered outputs, the first `image_url` for compatibility, artifact reference, Credit receipt, and canvas URL. Report all outputs for a batch. Upstream streaming is collected by the worker; MCP clients still poll this job for final results.
 5. Open the compact editable board once for the first completed image. Use `open_canvas` only when the session link needs to be recovered.
 
-For follow-up jobs in the same session, keep the existing browser panel open. The canvas imports new results automatically; do not open `board_url` again. If no panel is open, provide the clickable link. MCP cannot force a panel position. Never ask for an API Token in chat or put one in prompts, tool arguments, or canvas links. The generated image is a raster element on an editable SVG canvas; do not describe its pixels as vector-editable.
+For follow-up jobs in the same session, keep the existing browser panel open. The canvas imports new results automatically; do not open `board_url` again. If no panel is open, provide the clickable link. MCP cannot force a panel position. Never ask for an API Token in chat or put one in prompts, tool arguments, or canvas links. Generated assets are placed as image elements on the board; do not describe their pixels as vector-editable. A model-generated SVG download also does not prove that Board imported its paths as editable elements.

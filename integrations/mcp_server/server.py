@@ -44,7 +44,10 @@ mcp = FastMCP(
         'do not describe separate objects as one selectable, downloadable diagram. inspect_drawing checks revisions '
         'and saved canvas synchronization. If the user edited an object on Board or a revision conflicts, inspect '
         'before proceeding and preserve the user edits; do not force replacement. '
-        'Use quote_image before submit_image when a user asks about cost. '
+        'Read list_image_models for each model_parameters_schema. Pass reference_images explicitly as '
+        'public URLs or base64 data URLs; session_id only groups the canvas. Use mask_image for GPT edits '
+        'and model_parameters for native inference settings. Quote the same parameters before submission '
+        'when a user asks about cost. '
         'submit_image returns a job_id; poll get_image_job until completed or failed. '
         'For follow-up image changes, pass the previous session_id to submit_image so results stay on one canvas. '
         'Omit session_id only when the user starts a new canvas. '
@@ -146,16 +149,29 @@ WRITE = ToolAnnotations(readOnlyHint=False, openWorldHint=False, destructiveHint
 
 @mcp.tool(annotations=READ, structured_output=True)
 async def list_image_models() -> dict[str, Any]:
-    """List supported Nano Banana and GPT Image models and sizes."""
+    """List live models, reference/mask limits, sizes, and native parameter schemas."""
     return await _api('GET', '/api/board/image-models/')
 
 
 @mcp.tool(annotations=READ, structured_output=True)
-async def quote_image(model: str, image_size: str = '1K') -> dict[str, Any]:
-    """Get the current Credit price for one image without generating it."""
+async def quote_image(
+    model: str,
+    image_size: str = '1K',
+    aspect_ratio: str = '1:1',
+    generation_quality: str = '',
+    reference_images: list[str] | None = None,
+    mask_image: str = '',
+    model_parameters: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Quote the full request without generating; native size/count affect Credits."""
     return await _api('POST', '/api/board/image-quote/', payload={
         'model': model,
         'image_size': image_size,
+        'aspect_ratio': aspect_ratio,
+        'generation_quality': generation_quality,
+        'reference_images': reference_images or [],
+        'mask_image': mask_image,
+        'model_parameters': model_parameters or {},
     })
 
 
@@ -168,8 +184,19 @@ async def submit_image(
     generation_quality: str = '',
     session_id: str = '',
     client_request_id: str = '',
+    reference_images: list[str] | None = None,
+    mask_image: str = '',
+    model_parameters: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Queue an image. Reuse session_id for follow-ups and client_request_id for retries."""
+    """Queue text/reference generation with native model_parameters.
+
+    Read list_image_models for the chosen model's schema. reference_images accepts
+    public URLs or base64 image data URLs, never local paths. mask_image is a GPT
+    alpha PNG mask. Native settings are forwarded to the provider; get_image_job
+    returns all final images. session_id groups the canvas only: pass source
+    images explicitly for edits. Reuse client_request_id only for retries of the
+    identical complete request.
+    """
     result = await _api('POST', '/api/board/image-jobs/', payload={
         'prompt': prompt,
         'model': model,
@@ -178,6 +205,9 @@ async def submit_image(
         'generation_quality': generation_quality,
         'session_id': session_id,
         'client_request_id': client_request_id or str(uuid.uuid4()),
+        'reference_images': reference_images or [],
+        'mask_image': mask_image,
+        'model_parameters': model_parameters or {},
     })
     return _with_canvas_url(result)
 

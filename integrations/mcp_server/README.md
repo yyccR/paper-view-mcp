@@ -82,3 +82,36 @@ skill package. See the root README for the plugin release process.
 `list_image_jobs`, and `open_canvas` are available. Reuse a stable UUID
 `client_request_id` on submit retries. A completed job includes its image,
 Artifact reference, Credit receipt, and canvas URL.
+
+## Native image inputs and parameters
+
+Deploy the backend and image worker from the matching Paper View product commit,
+apply `core.0092_board_image_native_parameters`, then deploy this MCP adapter.
+The migration adds durable native request options, all result images, and batch
+reservation IDs. Keep the adapter copies in both repositories synchronized.
+
+`list_image_models` returns per-model reference limits, mask support, and
+`model_parameters_schema`. `submit_image` and `quote_image` both accept:
+
+- `reference_images`: public HTTP(S) image URLs or PNG/JPEG/WebP base64 data URLs;
+  local paths and shared upstream file IDs are not accepted.
+- `mask_image`: a GPT Image PNG mask with alpha/transparent pixels matching the
+  first reference image.
+- `model_parameters`: the native inference body, including nested Gemini
+  `generationConfig`, `tools`, `safetySettings`, etc., or GPT Image `quality`,
+  `size`, `n`, background/format/compression, streaming and preview settings.
+  Extra native inference fields pass through to the provider, which validates
+  its current model, gateway and account capabilities. Routing/authentication
+  and the named prompt/model/image arguments remain managed by the service.
+
+Use the same inputs when quoting and submitting. Native dimensions determine
+the 1K/2K/4K billing tier; automatic GPT sizing uses the 4K tier. Batch counts
+reserve each potential output and charge only delivered final images. All final
+URLs appear in `get_image_job.images`, with the first URL retained in
+`image_url`. The worker collects upstream SSE responses; MCP clients continue
+polling the job. `session_id` groups board results only; edit a previous image
+by explicitly passing its URL in `reference_images`.
+
+See the bundled skill's `references/image-generation.md` for provider examples,
+input limits and incompatible settings. Refresh the MCP tool catalog after
+server deployment. Installing a new skill alone does not update a hosted API.
