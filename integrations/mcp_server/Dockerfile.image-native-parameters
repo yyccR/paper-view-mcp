@@ -1,0 +1,6 @@
+# Preserve the existing MCP runtime, OAuth implementation, and dependencies.
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+ARG SOURCE_REVISION
+LABEL com.paperview.image-native-parameters.source-revision=${SOURCE_REVISION}
+COPY integrations/mcp_server/server.py /app/integrations/mcp_server/server.py

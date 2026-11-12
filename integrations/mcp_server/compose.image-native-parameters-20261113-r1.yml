@@ -1,0 +1,6 @@
+# Append to the running MCP stack; keep its existing oauth-state volume.
+services:
+  mcp:
+    image: paper-view-canvas-mcp:image-native-parameters-20261113-r1
+    labels:
+      com.paperview.local-deployment: image-native-parameters-20261113-r1
